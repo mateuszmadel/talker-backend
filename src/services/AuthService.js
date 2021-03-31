@@ -12,8 +12,8 @@ async function login(loginDto){
     if (!validPass) {
         throw new Error('Invalid login credentials');
     }
-
-    return jwt.sign({username:loginDto.username},process.env.JWT_SECRET);
+    const {password,__v, ...userData}=userRecord._doc;
+    return {user:userData,token:jwt.sign({username:loginDto.username},process.env.JWT_SECRET)};
 }
 
 exports.login = login;
