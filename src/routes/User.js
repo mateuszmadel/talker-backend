@@ -12,7 +12,7 @@ async function register(req,res){
         const user = await createUser(req.body);
         res.status(201).json(user);
     } catch (e) {
-        res.status(400).send(e.message);
+        res.status(400).json(e.message);
     }
 }
 async function getUserData(req, res){
@@ -20,7 +20,7 @@ async function getUserData(req, res){
         const user = await getUser(req.user);
         res.status(201).json(user);
     } catch (e) {
-        res.status(401).send(e.message);
+        res.status(401).json(e.message);
     }
 }
 
