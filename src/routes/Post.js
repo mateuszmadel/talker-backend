@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const {createPost, createComment, getPosts, saveLike} = require('../services/PostService');
+const {createPost, createComment, getPosts, saveLike, deleteLike} = require('../services/PostService');
 const tokenAuth = require('../middlewares/tokenAuth');
 
 function getPostRoutes() {
@@ -7,6 +7,7 @@ function getPostRoutes() {
     router.post('/comment', tokenAuth, comment);
     router.get('/getall', tokenAuth, getAll);
     router.post('/like', tokenAuth, like);
+    router.delete('/like',tokenAuth,removeLike)
     return router;
 }
 async function create(req, res){
@@ -39,6 +40,14 @@ async function like(req, res){
         res.status(401).send(e.message);
     }
 }
+async function removeLike(req, res){
+    try {
+        res.status(201).json(await deleteLike(req.body,req.user));
+    } catch (e) {
+        res.status(401).send(e.message);
+    }
+}
+
 
 
 exports.getPostRoutes = getPostRoutes;

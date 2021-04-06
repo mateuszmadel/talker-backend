@@ -45,7 +45,17 @@ async function saveLike(body,{username}) {
     if(likedDocument.likes.includes(likedBy._id)){
         throw new Error('Already liked');
     }
-    likedDocument.likes.unshift(likedBy);
+    likedDocument.likes.push(likedBy);
+    likedDocument.save();
+    return likedDocument.likes;
+}
+async function deleteLike(body,{username}){
+    const likedDocument = body.type==='post'? await Post.findById(body.id):await Comment.findById(body.id);
+    const likedBy = await User.findOne({username}, '_id');
+    if(!likedDocument.likes.includes(likedBy._id)){
+        throw new Error('Document is not liked');
+    }
+    likedDocument.likes.pull(likedBy._id);
     likedDocument.save();
     return likedDocument.likes;
 }
@@ -56,7 +66,9 @@ async function getPosts(){
     }, {path: 'author'}])
     return posts;
 }
+
 exports.createPost = createPost;
 exports.createComment = createComment;
 exports.getPosts = getPosts;
 exports.saveLike = saveLike;
+exports.deleteLike = deleteLike;
