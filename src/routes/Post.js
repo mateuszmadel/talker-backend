@@ -1,11 +1,12 @@
 const router = require('express').Router();
-const {createPost, createComment, getPosts} = require('../services/PostService');
+const {createPost, createComment, getPosts, saveLike} = require('../services/PostService');
 const tokenAuth = require('../middlewares/tokenAuth');
 
 function getPostRoutes() {
     router.post('/new', tokenAuth, create);
     router.post('/comment', tokenAuth, comment);
     router.get('/getall', tokenAuth, getAll);
+    router.post('/like', tokenAuth, like);
     return router;
 }
 async function create(req, res){
@@ -27,6 +28,13 @@ async function comment(req, res){
 async function getAll(req, res){
     try {
         res.status(201).json(await getPosts());
+    } catch (e) {
+        res.status(401).send(e.message);
+    }
+}
+async function like(req, res){
+    try {
+        res.status(201).json(await saveLike(req.body,req.user));
     } catch (e) {
         res.status(401).send(e.message);
     }

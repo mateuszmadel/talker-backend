@@ -5,7 +5,7 @@ const postSchema = new mongoose.Schema({
     author: { type: Schema.Types.ObjectId, ref: 'User', required: true},
     content: { type: String, required: true },
     comments: [{ type: Schema.Types.ObjectId, ref: 'Comment'}],
-    likes:[{ type: Schema.Types.ObjectId, ref: 'Like'}],
+    likes:[{ type: Schema.Types.ObjectId, ref: 'User'}],
 
 },{timestamps: {createdAt: 'created_at'}});
 
