@@ -1,9 +1,9 @@
 const router = require('express').Router();
 const {createPost, createComment, getPosts, saveLike, deleteLike} = require('../services/PostService');
 const tokenAuth = require('../middlewares/tokenAuth');
-
+const formData = require('express-form-data')
 function getPostRoutes() {
-    router.post('/new', tokenAuth, create);
+    router.post('/new', tokenAuth,formData.parse(), create);
     router.post('/comment', tokenAuth, comment);
     router.get('/getall', tokenAuth, getAll);
     router.post('/like', tokenAuth, like);
@@ -12,7 +12,7 @@ function getPostRoutes() {
 }
 async function create(req, res){
     try {
-        const post = await createPost(req.body,req.user);
+        const post = await createPost(req.body, req.user, req.files);
         res.status(201).json(post);
     } catch (e) {
         res.status(401).send(e.message);

@@ -1,15 +1,22 @@
 const Post = require('../models/Post');
 const User = require('../models/User');
 const Comment = require('../models/Comment');
-
-async function createPost(body,{username}){
+const { uploadImage } =require('../utils/uploadImage');
+async function createPost(body,{username},files){
     const author = await User.findOne({ username },'_id');
+    const file = Object.values(files);
+    let image;
+
+    if(file.length>0)
+        image = await uploadImage(file[0].path);
+
     const postRecord =await Post.create( {
         author,
-        content:body.content
+        content:body.content,
+        image:image
     })
+    return postRecord;
 
-    return postRecord.toObject();
 }
 async function createComment(body,{username}){
     const author = await User.findOne({ username },'_id');
@@ -60,7 +67,7 @@ async function deleteLike(body,{username}){
     return likedDocument.likes;
 }
 async function getPosts(){
-    const posts =await Post.find({}).populate([{
+    const posts =await Post.find({}).sort({created_at: 'desc'}).populate([{
         path: 'comments',
         populate:[{ path: 'comments', populate:[{path: 'comments',populate:{path:'author'}},{path:'author'}] }, {path: 'author'}]
     }, {path: 'author'}])
