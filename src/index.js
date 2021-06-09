@@ -8,7 +8,7 @@ const { getRoutes } = require('./routes');
 
 
 const app = express();
-const port = 8080;
+
 
 mongoose.connect(process.env.DB_URL, {
     useNewUrlParser: true,
@@ -21,6 +21,6 @@ app.use(cors());
 
 app.use('/',getRoutes());
 
-app.listen(port,()=>{
+app.listen(process.env.PORT,()=>{
     console.log(`App running on port ${port}.`)
 })

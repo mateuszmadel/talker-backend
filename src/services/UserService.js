@@ -20,11 +20,10 @@ async function createUser(userDto){
             return userRecord.toObject();
 }
 async function getUser({username}){
-    const userRecord=await user.findOne({ username });
-    const {password,__v, ...userData}=userRecord._doc;
-    console.log(userData);
+    const userRecord = await user.findOne({ username });
+    const {password,__v, ...userData} = userRecord._doc;
     return userData;
 }
 
-exports.createUser=createUser;
-exports.getUser=getUser;
+exports.createUser = createUser;
+exports.getUser = getUser;

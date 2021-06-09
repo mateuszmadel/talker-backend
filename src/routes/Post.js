@@ -2,15 +2,17 @@ const router = require('express').Router();
 const {createPost, createComment, getPosts, saveLike, deleteLike} = require('../services/PostService');
 const tokenAuth = require('../middlewares/tokenAuth');
 const formData = require('express-form-data')
+
 function getPostRoutes() {
-    router.post('/new', tokenAuth,formData.parse(), create);
+    router.post('/new', tokenAuth, formData.parse(), create);
     router.post('/comment', tokenAuth, comment);
     router.get('/getall', tokenAuth, getAll);
     router.post('/like', tokenAuth, like);
-    router.delete('/like',tokenAuth,removeLike)
+    router.delete('/like', tokenAuth, removeLike)
     return router;
 }
-async function create(req, res){
+
+async function create(req, res) {
     try {
         const post = await createPost(req.body, req.user, req.files);
         res.status(201).json(post);
@@ -18,36 +20,39 @@ async function create(req, res){
         res.status(401).send(e.message);
     }
 }
-async function comment(req, res){
+
+async function comment(req, res) {
     try {
-        const comm = await createComment(req.body,req.user);
+        const comm = await createComment(req.body, req.user);
         res.status(201).json(comm);
     } catch (e) {
         res.status(401).send(e.message);
     }
 }
-async function getAll(req, res){
+
+async function getAll(req, res) {
     try {
         res.status(201).json(await getPosts());
     } catch (e) {
         res.status(401).send(e.message);
     }
 }
-async function like(req, res){
+
+async function like(req, res) {
     try {
-        res.status(201).json(await saveLike(req.body,req.user));
-    } catch (e) {
-        res.status(401).send(e.message);
-    }
-}
-async function removeLike(req, res){
-    try {
-        res.status(201).json(await deleteLike(req.body,req.user));
+        res.status(201).json(await saveLike(req.body, req.user));
     } catch (e) {
         res.status(401).send(e.message);
     }
 }
 
+async function removeLike(req, res) {
+    try {
+        res.status(201).json(await deleteLike(req.body, req.user));
+    } catch (e) {
+        res.status(401).send(e.message);
+    }
+}
 
 
 exports.getPostRoutes = getPostRoutes;

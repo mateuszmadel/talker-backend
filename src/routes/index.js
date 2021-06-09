@@ -10,4 +10,4 @@ function getRoutes() {
     return router;
 }
 
-exports.getRoutes=getRoutes;
+exports.getRoutes = getRoutes;

@@ -1,75 +1,82 @@
 const Post = require('../models/Post');
 const User = require('../models/User');
 const Comment = require('../models/Comment');
-const { uploadImage } =require('../utils/uploadImage');
-async function createPost(body,{username},files){
-    const author = await User.findOne({ username },'_id');
+const {uploadImage} = require('../utils/uploadImage');
+
+async function createPost(body, {username}, files) {
+    const author = await User.findOne({username}, '_id');
     const file = Object.values(files);
     let image;
 
-    if(file.length>0)
+    if (file.length > 0)
         image = await uploadImage(file[0].path);
 
-    const postRecord =await Post.create( {
+    const postRecord = await Post.create({
         author,
-        content:body.content,
-        image:image
+        content: body.content,
+        image: image
     })
     return postRecord;
 
 }
-async function createComment(body,{username}){
-    const author = await User.findOne({ username },'_id');
-    const commentRecord =(await Comment.create({
+
+async function createComment(body, {username}) {
+    const author = await User.findOne({username}, '_id');
+    const commentRecord = (await Comment.create({
         author,
         content: body.content
     })).toObject();
-    commentRecord.author.username=username;
-    if(body.type ==='post'){
+    commentRecord.author.username = username;
+    if (body.type === 'post') {
         Post.findByIdAndUpdate(
             body.id,
-            {$push: {"comments": commentRecord._id }},
-            {safe: true, upsert: true, new : true},
-            function(err, model) {
+            {$push: {"comments": commentRecord._id}},
+            {safe: true, upsert: true, new: true},
+            function (err, model) {
             }
         );
-    }
-    else{
+    } else {
 
         Comment.findByIdAndUpdate(
             body.id,
-            {$push: {"comments": commentRecord._id }},
-            {safe: true, upsert: true, new : true},
-            function(err, model) {
+            {$push: {"comments": commentRecord._id}},
+            {safe: true, upsert: true, new: true},
+            function (err, model) {
             }
         )
     }
     return commentRecord;
 }
-async function saveLike(body,{username}) {
-    const likedDocument = body.type==='post'? await Post.findById(body.id):await Comment.findById(body.id);
+
+async function saveLike(body, {username}) {
+    const likedDocument = body.type === 'post' ? await Post.findById(body.id) : await Comment.findById(body.id);
     const likedBy = await User.findOne({username}, '_id');
-    if(likedDocument.likes.includes(likedBy._id)){
+    if (likedDocument.likes.includes(likedBy._id)) {
         throw new Error('Already liked');
     }
     likedDocument.likes.push(likedBy);
     likedDocument.save();
     return likedDocument.likes;
 }
-async function deleteLike(body,{username}){
-    const likedDocument = body.type==='post'? await Post.findById(body.id):await Comment.findById(body.id);
+
+async function deleteLike(body, {username}) {
+    const likedDocument = body.type === 'post' ? await Post.findById(body.id) : await Comment.findById(body.id);
     const likedBy = await User.findOne({username}, '_id');
-    if(!likedDocument.likes.includes(likedBy._id)){
+    if (!likedDocument.likes.includes(likedBy._id)) {
         throw new Error('Document is not liked');
     }
     likedDocument.likes.pull(likedBy._id);
     likedDocument.save();
     return likedDocument.likes;
 }
-async function getPosts(){
-    const posts =await Post.find({}).sort({created_at: 'desc'}).populate([{
+
+async function getPosts() {
+    const posts = await Post.find({}).sort({created_at: 'desc'}).populate([{
         path: 'comments',
-        populate:[{ path: 'comments', populate:[{path: 'comments',populate:{path:'author'}},{path:'author'}] }, {path: 'author'}]
+        populate: [{
+            path: 'comments',
+            populate: [{path: 'comments', populate: {path: 'author'}}, {path: 'author'}]
+        }, {path: 'author'}]
     }, {path: 'author'}])
     return posts;
 }
