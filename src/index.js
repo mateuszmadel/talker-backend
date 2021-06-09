@@ -22,5 +22,5 @@ app.use(cors());
 app.use('/',getRoutes());
 
 app.listen(process.env.PORT,()=>{
-    console.log(`App running on port ${port}.`)
+    console.log(`App running on port ${process.env.PORT}.`)
 })
