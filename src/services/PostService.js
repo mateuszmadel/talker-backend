@@ -4,7 +4,7 @@ const Comment = require('../models/Comment');
 const {uploadImage} = require('../utils/uploadImage');
 
 async function createPost(body, {username}, files) {
-    const author = await User.findOne({username}, '_id');
+    const author = await User.findOne({username});
     const file = Object.values(files);
     let image;
 
@@ -70,8 +70,28 @@ async function deleteLike(body, {username}) {
     return likedDocument.likes;
 }
 
-async function getPosts() {
-    const posts = await Post.find({}).sort({created_at: 'desc'}).populate([{
+async function getPosts(username) {
+    const posts = await Post.find({}).sort({created_at: 'desc'}).populate([
+        {
+            path: 'comments',
+            populate: [{
+                path: 'comments',
+                populate: [{path: 'comments', populate: {path: 'author'}}, {path: 'author'}]
+            }, {path: 'author'}]
+        },
+        {
+            path: 'author',
+            populate:[{
+                path:'followers'
+            }]
+        }])
+    return posts.filter(el=> {
+        return el.author.username === username || el.author.followers.find(obj => obj.username === username)
+    });
+}
+
+async function getPostsByUserId(userId) {
+    const posts = await Post.find({author:userId}).sort({created_at: 'desc'}).populate([{
         path: 'comments',
         populate: [{
             path: 'comments',
@@ -81,6 +101,7 @@ async function getPosts() {
     return posts;
 }
 
+exports.getPostsByUserId = getPostsByUserId
 exports.createPost = createPost;
 exports.createComment = createComment;
 exports.getPosts = getPosts;
